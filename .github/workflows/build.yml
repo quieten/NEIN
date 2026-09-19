@@ -1,0 +1,23 @@
+name: Build NEIN IPA
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download IPA from Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download v1.0 --pattern "line26.14.0.ipa" --dir .
+
+      - name: Build IPA
+        run: |
+          python3 tools/main.py --keychain-compat --remove-ads --hide-promotional-tabs line26.14.0.ipa output/NEIN-26.14.0-secondary.ipa
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NEIN-IPA
+          path: output/NEIN-26.14.0-secondary.ipa
